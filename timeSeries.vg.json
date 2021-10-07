@@ -1,0 +1,157 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "width": "662",
+    "height": "350",
+    "title": { "text": "People Double Vaccinated against COVID per 100 (for 2021)" },
+    "data": {
+        "url": "https://raw.githubusercontent.com/hughemi/3179-W10Homework/main/vax_timeseries.csv"
+    },        
+    "params": [
+        {
+            "name": "rank",
+            "value": 217,
+            "bind": {
+                "input": "range",
+                "min": 1,
+                "max": 217,
+                "step": 1,
+                "name": "Rank Filter"
+            }
+        },
+        {
+            "name": "population",
+            "value": 0,
+            "bind": {
+                "input": "range",
+                "min": 0,
+                "max": 100000000,
+                "step": 1000000,
+                "name": "Min. Population"
+            }
+        },
+        {
+            "name": "Region_selection",
+            "bind": {
+                "input": "select",
+                "options": [
+                null,
+                "South Asia",
+                "Europe & Central Asia",
+                "Middle East & North Africa",
+                "Sub-Saharan Africa",
+                "Latin America & Caribbean",
+                "East Asia & Pacific",
+                "North America"
+                ],
+                "labels": [
+                "Show All",
+                "South Asia",
+                "Europe & Central Asia",
+                "Middle East & North Africa",
+                "Sub-Saharan Africa",
+                "Latin America & Caribbean",
+                "East Asia & Pacific",
+                "North America"
+                ],
+                "name": "Region Selection"
+            }
+        }
+    ],
+    "transform": [
+        {"filter": "datum.rank < rank"},
+        {"filter": "datum.population > population"},
+        {"filter": "Region_selection == null || datum.region == Region_selection"}
+    ],
+    "encoding": {
+        "x": {
+            "field": "date", 
+            "type": "temporal",
+            "scale": {"domain": ["1/1/2021", "9/20/2021"]}
+        },
+        "y": {
+            "field": "people_fully_vaccinated_per_hundred",
+            "type": "quantitative",
+            "scale": {"domain": [0, 120]}
+        },
+        "detail": {
+                "field": "country", 
+                "type": "nominal"
+        }
+    },
+    "layer": [
+        {
+            "selection": {
+                "Region_highlight":{
+                    "type": "multi",
+                    "fields": ["region"],
+                    "bind": "legend"
+                }
+            },
+            "mark": {
+                "type": "line",
+                "opacity": 0.5
+            },
+            "encoding":{
+                "color": {
+                        "field": "region", 
+                        "type": "nominal",
+                        "scale": {
+                            "domain": [
+                            "South Asia",
+                            "Europe & Central Asia",
+                            "Middle East & North Africa",
+                            "Sub-Saharan Africa",
+                            "Latin America & Caribbean",
+                            "East Asia & Pacific",
+                            "North America"
+                            ]
+                        }
+                },
+                "opacity": {
+                    "condition": {"selection": "Region_highlight", "value": 0.6},
+                    "value": 0.1
+                },
+                "tooltip": [
+                    {"field": "country", "type": "nominal"},
+                    {"field": "date", "type": "temporal"},
+                    {"field": "people_fully_vaccinated_per_hundred", "type": "quantitative",
+                        "format": ",", "name": "Population double vax %"},
+                    {"field": "region", "type": "nominal"},
+                    {"field": "rank", "type": "quantitative", "format": ","},
+                    {"field": "population", "type": "quantitative"}
+                ]
+            }  
+        },
+        {
+            "mark": {
+                "type": "text",
+                "align": "right",
+                "baseline": "middle",
+                "dx": -12,
+                "fontSize": 11.5,
+                "fontStyle": "italic"
+            },
+            "encoding": {
+                "text": {"field": "country", "type": "nominal"},
+                "color": {"value": "black"},
+                "opacity": {
+                    "condition": {
+                        "test": "datum['country'] == 'Gibraltar' & datum['people_fully_vaccinated_per_hundred'] == 84.93 || datum['country'] == 'Seychelles' & datum['people_fully_vaccinated_per_hundred'] == 61.07 || datum['country'] == 'United Arab Emirates' & datum['people_fully_vaccinated_per_hundred'] == 80.38",
+                        "value": 1
+                    },
+                    "value": 0
+                },
+
+                "tooltip": [
+                    {"field": "country", "type": "nominal"},
+                    {"field": "date", "type": "temporal"},
+                    {"field": "people_fully_vaccinated_per_hundred", "type": "quantitative",
+                        "format": ",", "name": "Population double vax %"},
+                    {"field": "region", "type": "nominal"},
+                    {"field": "rank", "type": "quantitative", "format": ","},
+                    {"field": "population", "type": "quantitative"}
+                ]
+            }
+        }
+    ]
+}
